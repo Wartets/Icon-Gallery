@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Font Awesome icon gallery</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .icon-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .icon-cell {
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+    }
+    .icon-cell:hover {
+      background: #f0f0f0;
+    }
+    .copied {
+      background: #c8ffc8 !important;
+    }
+    .tooltip {
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: black;
+      color: white;
+      padding: 4px 6px;
+      font-size: 12px;
+      border-radius: 4px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: 0.15s;
+    }
+    .icon-cell:hover .tooltip {
+      opacity: 1;
+      bottom: -28px;
+	  z-index: 5;
+    }
+  </style>
+</head>
+<body>
+  <div id="icons" class="icon-grid"></div>
+
+  <script>
+    async function extractIconsFromCSS() {
+      const cssURL = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css";
+      const resp = await fetch(cssURL);
+      const cssText = await resp.text();
+      const regex = /\.fa-([^:]+):before/g;
+      const icons = new Set();
+      let match;
+
+      while ((match = regex.exec(cssText)) !== null) {
+        icons.add(match[1]);
+      }
+
+      return [...icons];
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text);
+    }
+
+    function renderIcons(iconNames) {
+      const container = document.getElementById("icons");
+
+      iconNames.forEach(name => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "icon-cell";
+
+        const i = document.createElement("i");
+        i.className = "fa-solid fa-" + name;
+
+        const tooltip = document.createElement("div");
+        tooltip.className = "tooltip";
+        tooltip.textContent = name;
+
+        wrapper.appendChild(i);
+        wrapper.appendChild(tooltip);
+
+        wrapper.addEventListener("click", () => {
+          const html = `<i class="fa-solid fa-${name}"></i>`;
+          copyToClipboard(html);
+
+          wrapper.classList.add("copied");
+          setTimeout(() => wrapper.classList.remove("copied"), 600);
+        });
+
+        container.appendChild(wrapper);
+      });
+    }
+
+    extractIconsFromCSS().then(renderIcons);
+  </script>
+</body>
+</html>
